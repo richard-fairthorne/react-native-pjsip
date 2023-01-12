@@ -20,14 +20,14 @@
         
         // Store this as a dictionary with copied members
         // Extract the message headers
-        NSMutableDictionary *headers = [[NSMutableDictionary alloc] init]
+        NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
         pjsip_msg *m = rx->msg_info.msg;
         pjsip_hdr *hdr;
         char v[MAX_HDR_LEN];
         for (hdr = m->hdr.next ; hdr != &m->hdr ; hdr = hdr->next) {
-            pjstr_t *k = hdr->name;
+            NSString *k = [NSString stringWithUTF8String: hdr->name];
             
-            // We assume that the header is compatible with pjstr_t
+            // We assume that the header is compatible with pj_str_t
             int hdr_size = hdr->vptr->print_on(hdr, &v, MAX_HDR_LEN-1);
             // Zero terminate the char buffer
             v[hdr_size] = 0;
@@ -40,10 +40,6 @@
     }
     
     return self;
-}
-
--(void)dealloc {
-    [self.headers release]
 }
 
 #pragma mark - Actions
@@ -225,7 +221,7 @@
         @"videoCount": @(info.setting.vid_cnt),
         
         @"media": [self mediaInfoToJsonArray:info.media count:info.media_cnt],
-        @"provisionalMedia": [self mediaInfoToJsonArray:info.prov_media count:info.prov_media_cnt]
+        @"provisionalMedia": [self mediaInfoToJsonArray:info.prov_media count:info.prov_media_cnt],
         
         @"headers": @(self.headers);
     };
