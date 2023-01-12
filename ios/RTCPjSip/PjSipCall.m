@@ -25,7 +25,7 @@
         pjsip_hdr *hdr;
         char v[MAX_HDR_LEN];
         for (hdr = m->hdr.next ; hdr != &m->hdr ; hdr = hdr->next) {
-            NSString *k = [[NSString alloc] initWithBytes:hdr->name.vptr length:hdr->name.slen encoding:NSUTF8StringEncoding];
+            NSString *k = [[NSString alloc] initWithBytes:hdr->name.ptr length:hdr->name.slen encoding:NSUTF8StringEncoding];
             
             // We assume that the header is UTF8 or compatible
             int hdr_size = hdr->vptr->print_on(hdr, &v, MAX_HDR_LEN-1);
