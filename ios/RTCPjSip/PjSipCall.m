@@ -13,6 +13,9 @@
 - (id)initWithId:(int)id rxData:(pjsip_rx_data*)rx {
     self = [super init];
     
+    // sip headers have a 48 char limit. Future proofing to 256.
+    const int MAX_HDR_LEN = 256;
+    
     if (self) {
         self.id = id;
         self.isHeld = false;
