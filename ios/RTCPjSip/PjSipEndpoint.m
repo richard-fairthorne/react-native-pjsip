@@ -382,7 +382,7 @@ static void onRegStateChanged(pjsua_acc_id accId) {
 static void onCallReceived(pjsua_acc_id accId, pjsua_call_id callId, pjsip_rx_data *rx) {
     PjSipEndpoint* endpoint = [PjSipEndpoint instance];
     
-    PjSipCall *call = [PjSipCall itemConfig:callId];
+    PjSipCall *call = [PjSipCall itemConfig:callId rxData:rx];
     endpoint.calls[@(callId)] = call;
     
     [endpoint emmitCallReceived:call];
