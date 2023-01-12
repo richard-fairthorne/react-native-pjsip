@@ -25,14 +25,12 @@
         pjsip_hdr *hdr;
         char v[MAX_HDR_LEN];
         for (hdr = m->hdr.next ; hdr != &m->hdr ; hdr = hdr->next) {
-            char k_val[hdr->name.slen+4] = '\0';
-            strncat(&k_val, hdr->name.ptr, hdr->name.slen);
-            NSString *k = [[NSString alloc] initWithUTF8String: &k_val];
+            NSString *k = [[NSString alloc] initWithBytes:hdr->name.vptr length:hdr->name.slen encoding:NSUTF8StringEncoding];
             
-            // We assume that the header is compatible with pj_str_t
+            // We assume that the header is UTF8 or compatible
             int hdr_size = hdr->vptr->print_on(hdr, &v, MAX_HDR_LEN-1);
-            // Zero terminate the char buffer
-            v[hdr_size] = 0;
+            // Zero terminate the buffer in case it is not null terminated
+            v[hdr_size] = '\0';
             
             // Add the header to a dictionary
             headers[k] = [NSString stringWithUTF8String: v];
@@ -225,7 +223,7 @@
         @"media": [self mediaInfoToJsonArray:info.media count:info.media_cnt],
         @"provisionalMedia": [self mediaInfoToJsonArray:info.prov_media count:info.prov_media_cnt],
         
-        @"headers": self.headers;
+        @"headers": self.headers
     };
 }
 
