@@ -6,20 +6,44 @@
 
 @implementation PjSipCall
 
-+ (instancetype)itemConfig:(int)id {
-    return [[self alloc] initWithId:id];
++ (instancetype)itemConfig:(int)id rxData:(pjsip_rx_data*)rx {
+    return [[self alloc] initWithId:id rxData:rx];
 }
 
-- (id)initWithId:(int)id {
+- (id)initWithId:(int)id rxData:(pjsip_rx_data*)rx {
     self = [super init];
     
     if (self) {
         self.id = id;
         self.isHeld = false;
         self.isMuted = false;
+        
+        // Store this as a dictionary with copied members
+        // Extract the message headers
+        NSMutableDictionary *headers = [[NSMutableDictionary alloc] init]
+        pjsip_msg *m = rx->msg_info.msg;
+        pjsip_hdr *hdr;
+        char v[MAX_HDR_LEN];
+        for (hdr = m->hdr.next ; hdr != &m->hdr ; hdr = hdr->next) {
+            pjstr_t *k = hdr->name;
+            
+            // We assume that the header is compatible with pjstr_t
+            int hdr_size = hdr->vptr->print_on(hdr, &v, MAX_HDR_LEN-1);
+            // Zero terminate the char buffer
+            v[hdr_size] = 0;
+            
+            // Add the header to a dictionary
+            headers[k] = [NSString stringWithUTF8String: v];
+        }
+        
+        self.headers = headers; // matching release in dealloc
     }
     
     return self;
+}
+
+-(void)dealloc {
+    [self.headers release]
 }
 
 #pragma mark - Actions
@@ -202,6 +226,8 @@
         
         @"media": [self mediaInfoToJsonArray:info.media count:info.media_cnt],
         @"provisionalMedia": [self mediaInfoToJsonArray:info.prov_media count:info.prov_media_cnt]
+        
+        @"headers": @(self.headers);
     };
 }
 

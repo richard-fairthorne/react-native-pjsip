@@ -1,11 +1,15 @@
 #import <React/RCTUtils.h>
 #import <VialerPJSIP/pjsua.h>
 
+// sip headers have a 48 char limit. Future proofing to 256.
+const MAX_HDR_LEN = 256;
+
 @interface PjSipCall : NSObject
 
 @property int id;
 @property bool isHeld;
 @property bool isMuted;
+@property NSDictionary *headers;
 
 + (instancetype)itemConfig:(int)id;
 
