@@ -55,6 +55,7 @@
         self.id = id;
         self.isHeld = false;
         self.isMuted = false;
+        self.headers = [[NSMutableDictionary alloc] init];
     }
     
     return self;
