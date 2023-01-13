@@ -7,32 +7,11 @@
 @implementation PjSipCall
 
 + (instancetype)itemConfig:(int)id {
-    self.headers = [[NSDictionary alloc] init];
     return [[self alloc] initWithId:id];
 }
 
 + (instancetype)itemConfig:(int)id rxData:(pjsip_rx_data*)rx {
-    PjSipCall *me = [[self alloc] initWithId:id];
-    // Store this as a dictionary with copied members
-    // Extract the message headers
-    NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
-    pjsip_msg *m = rx->msg_info.msg;
-    pjsip_hdr *hdr;
-    char v[MAX_HDR_LEN];
-    for (hdr = m->hdr.next ; hdr != &m->hdr ; hdr = hdr->next) {
-        NSString *k = [[NSString alloc] initWithBytes:hdr->name.ptr length:hdr->name.slen encoding:NSUTF8StringEncoding];
-        
-        // We assume that the header is UTF8 or compatible
-        int hdr_size = hdr->vptr->print_on(hdr, &v, MAX_HDR_LEN-1);
-        // Zero terminate the buffer in case it is not null terminated
-        v[hdr_size] = '\0';
-        
-        // Add the header to a dictionary
-        headers[k] = [NSString stringWithUTF8String: v];
-    }
-    
-    self.headers = headers; // matching release in dealloc
-    return me;
+    return [[self alloc] initWithId:id rxData:rx];
 }
 
 - (id)initWithId:(int)id rxData:(pjsip_rx_data*)rx {
@@ -40,6 +19,37 @@
     
     // sip headers have a 48 char limit. Future proofing to 256.
     const int MAX_HDR_LEN = 256;
+    
+    if (self) {
+        // Store this as a dictionary with copied members
+        // Extract the message headers
+        NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
+        pjsip_msg *m = rx->msg_info.msg;
+        pjsip_hdr *hdr;
+        char v[MAX_HDR_LEN];
+        for (hdr = m->hdr.next ; hdr != &m->hdr ; hdr = hdr->next) {
+            NSString *k = [[NSString alloc] initWithBytes:hdr->name.ptr length:hdr->name.slen encoding:NSUTF8StringEncoding];
+            
+            // We assume that the header is UTF8 or compatible
+            int hdr_size = hdr->vptr->print_on(hdr, &v, MAX_HDR_LEN-1);
+            // Zero terminate the buffer in case it is not null terminated
+            v[hdr_size] = '\0';
+            
+            // Add the header to a dictionary
+            headers[k] = [NSString stringWithUTF8String: v];
+        }
+        
+        self.headers = headers; // matching release in dealloc
+        self.id = id;
+        self.isHeld = false;
+        self.isMuted = false;
+    }
+    
+    return self;
+}
+
+- (id)initWithId:(int)id {
+    self = [super init];
     
     if (self) {
         self.id = id;

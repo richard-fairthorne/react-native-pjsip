@@ -6,7 +6,7 @@
 @property int id;
 @property bool isHeld;
 @property bool isMuted;
-@property NSDictionary *headers;
+@property NSMutableDictionary *headers;
 
 + (instancetype)itemConfig:(int)id;
 
