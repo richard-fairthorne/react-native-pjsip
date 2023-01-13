@@ -9,6 +9,7 @@
 @property NSMutableDictionary *headers;
 
 + (instancetype)itemConfig:(int)id;
++ (instancetype)itemConfig:(int)id rxData:(pjsip_rx_data*)rx;
 
 - (void)hangup;
 - (void)decline;
